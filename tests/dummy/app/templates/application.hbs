@@ -1,3 +1,34 @@
-<h2 id="title">Welcome to Ember.js</h2>
+<p>ID{{input value=id}}</p>
+<p>Submitter Name{{input value=submitter_name}}</p>
+<p>Submitter Email{{input value=submitter_email}}</p>
+<p>Submission Date{{input value=submission_date}}</p>
 
-{{outlet}}
+<p>
+  Artist
+  <p>Name{{input value=artist.name}}</p>
+  <p>Bio{{input value=artist.bio}}</p>
+  <p>Youtube URL{{input value=artist.youtube_url}}</p>
+</p>
+
+<p>
+  Album
+  <p>title{{input value=album.title}}</p>
+  <p>release_date{{input value=album.release_date}}</p>
+  <p>record_label{{input value=album.record_label}}</p>
+  <p>upc{{input value=album.upc}}</p>
+</p>
+
+<p>Tracks:</p>
+{{#each track in album.tracks}}
+  <p>Title{{input value=track.title}}</p>
+  <p>Filename{{input value=track.filename}}</p>
+  <p>URL{{input value=track.url}}</p>
+  <p>Access Token{{input value=track.access_token}}</p>
+{{/each}}
+
+<p>Valid? {{valid}}</p>
+
+<p>Full list of errors:</p>
+{{#each error in errors}}
+  <p>{{error.field}} - {{error.message}}</p>
+{{/each}}

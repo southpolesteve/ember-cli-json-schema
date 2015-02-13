@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import validator from "npm:is-my-json-valid";
+import ZSchema from "npm:z-schema";
 
 // var JSONSchemaObject = Ember.Object.extend({
 //   schema: null,
@@ -56,7 +56,6 @@ export default Ember.Object.extend({
 
   load: function(url, name){
     return Ember.$.getJSON(url, (schema) => {
-      this.set('_validators.' + name, validator(schema))
       this.set('_schemas.' + name, schema);
     });
   },
@@ -72,10 +71,12 @@ export default Ember.Object.extend({
 var JSObject = Ember.ObjectProxy.extend({
   schema: null,
   proto: null,
-  validate: null,
   setupProps: function(){
     this.set('content', this.get('proto') || {})
-    this.set('validate', validator(this.get('schema')))
+    var validator = new ZSchema({noEmptyStrings: true, breakOnFirstError: false});
+    this.set('validate', validator)
+    var stuff = this.get('schema')
+    delete stuff['$schema']
 
     var walkProps = function(node, parent){
       var nodeProps = []
@@ -96,15 +97,12 @@ var JSObject = Ember.ObjectProxy.extend({
       return nodeProps
     }
     var props = walkProps(this.get('schema'))
-    console.log(props)
 
     var _this = this;
 
     Ember.defineProperty(this, 'errors', Ember.computed.apply(this, props.concat(function(key, value){
-      var validate = _this.get('validate')
-      validate(_this.get('content'))
-      console.log('validated content')
-      return validate.errors
+      validator.validate(_this.get('content'), stuff)
+      return validator.getLastErrors()
     })));
 
     // Ember.defineProperty(this, 'requiredErrors', Ember.computed.apply(this, requiredProps.concat(function(key, value){

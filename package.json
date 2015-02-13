@@ -43,6 +43,8 @@
   },
   "dependencies": {
     "ember-browserify": "^0.6.2",
-    "is-my-json-valid": "^2.4.0"
+    "is-my-json-valid": "^2.4.0",
+    "themis": "^1.1.5",
+    "z-schema": "^3.4.3"
   }
 }

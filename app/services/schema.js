@@ -1,5 +1,4 @@
 import Ember from 'ember';
-import ZSchema from "npm:z-schema";
 
 export default Ember.Object.extend({
   _schemas: {},

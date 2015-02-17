@@ -27,30 +27,15 @@ function create(schema){
   }
 }
 
-// var JSArray = Ember.Object.extend(Ember.MutableArray, {
-//   replace: function(){
-//     debugger
-//     console.log('called replace')
-//   },
-
-//   objectAt: function(){
-//     console.log('called objectAt')
-//   }
-// })
-
 var JSArrayProxy = Ember.ArrayProxy.extend({})
 
 JSArrayProxy.reopen({
-  pushObjects:function(objects){
-    var schema = this.get('_schema.items');
-    this._super(objects.map((obj)=>{
-      return create(schema)
-    }))
-  },
-
-  pushObject:function(object){
-    var schema = this.get('_schema.items');
-    return create(schema)
+  replaceContent: function(idx, amt, objects) {
+    if (objects) {
+      var schema = this.get('_schema.items');
+      objects = objects.map((obj) => { return create(schema) })
+    }
+    this._super(idx, amt, objects)
   },
 
   isValid: Ember.computed.empty('errors'),

@@ -1,55 +1,6 @@
 import Ember from 'ember';
 import ZSchema from "npm:z-schema";
 
-// var JSONSchemaObject = Ember.Object.extend({
-//   schema: null,
-//   // valid: Ember.computed.empty('errors'),
-//   // errors: function(){
-//   //   var errors = []
-//   //   var required = this.get('requiredProps')
-
-//   //   // Required Properties
-//   //   this.get('propNames').map((propName) => {
-//   //     if (required.contains(propName) && Ember.isEmpty(this.get(propName))){
-//   //       errors.push({field: propName, message: "is empty"})
-//   //     }
-//   //   })
-
-//   //   return errors
-//   // }.property('schema.properties.[]'),
-
-//   setupObservers: function(){
-//     var required = this.get('requiredProps');
-//     this.set('errors', {});
-
-//     this.get('propNames').map((propName) => {
-//       this.addObserver(propName, ()=>{
-//         console.log('fired observer on ' + propName)
-//         var propErrors = []
-//         if (required.contains(propName) && Ember.isEmpty(this.get(propName))){
-//           console.log('generated error')
-//           propErrors.push({message: "is empty"})
-//         }
-//         if (propErrors.length === 0){
-//           delete this.errors[propName]
-//         } else {
-//           this.errors[propName] = propErrors
-//         }
-//       });
-//     })
-//   }.on('init'),
-
-//   requiredProps: Ember.computed.alias('schema.required'),
-
-//   propNames: function() {
-//     return Ember.keys(this.get('schema.properties'))
-//   }.property('schema.properties.[]'),
-
-//   getAttributes: function(){
-//     return this.getProperties(this.get('propNames'))
-//   }
-// })
-
 export default Ember.Object.extend({
   _schemas: {},
   _validators: {},
@@ -60,91 +11,133 @@ export default Ember.Object.extend({
     });
   },
 
-  createObject: function(name, proto){
+  createObject: function(name){
     var schema = this.get('_schemas.' + name);
-    var obj = create(schema, proto)
+    var obj = create(schema)
     return obj;
   }
 
 });
 
-var JSObject = Ember.ObjectProxy.extend({
-  schema: null,
-  proto: null,
-  setupProps: function(){
-    this.set('content', this.get('proto') || {})
-    var validator = new ZSchema({noEmptyStrings: true, breakOnFirstError: false});
-    this.set('validate', validator)
-    var stuff = this.get('schema')
-    delete stuff['$schema']
-
-    var walkProps = function(node, parent){
-      var nodeProps = []
-      if (node.type === 'object'){
-        for (var propName in node.properties){
-          var name
-          if (parent) {
-            name = parent + "." + propName
-          } else {
-            name = propName
-          }
-          nodeProps.push(name)
-          nodeProps.push.apply(nodeProps, walkProps(node.properties[propName], name))
-        }
-      } else if (node.type === 'array') {
-        nodeProps.push.apply(nodeProps, walkProps(node.items, parent + ".@each"))
-      }
-      return nodeProps
-    }
-    var props = walkProps(this.get('schema'))
-
-    var _this = this;
-
-    Ember.defineProperty(this, 'errors', Ember.computed.apply(this, props.concat(function(key, value){
-      validator.validate(_this.get('content'), stuff)
-      return validator.getLastErrors()
-    })));
-
-    // Ember.defineProperty(this, 'requiredErrors', Ember.computed.apply(this, requiredProps.concat(function(key, value){
-    //   return requiredProps.map(function(propName){
-    //     if (Ember.isEmpty(_this.get(propName))){
-    //       return { field: propName, message: "is empty" }
-    //     }
-    //   }).filter(function(e){return e});
-    // })));
-
-    // Ember.defineProperty(this, 'typeErrors', Ember.computed.apply(this, props.concat(function(key, value){
-    //   return props.map(function(propName){
-    //     return this.get(propName)
-    //   }).filter(function(e){return e});
-    // })));
-
-  }.on('init'),
-
-  valid: Ember.computed.empty('errors')
-
-  // errors: function(){
-  //   var errors = {}
-  //   this.get('requiredErrors').map(function(error){
-  //     errors[error.field] = errors[error.field] || []
-  //     errors[error.field].push(error.message)
-  //   })
-  //   return errors
-  // }.property('requiredErrors.[]', 'typeErrors.[]'),
-
-  // errorMessages: function(){
-  //   var errors = []
-  //   this.get('requiredErrors').map(function(error){
-  //     errors.push(error.field + " " + error.message)
-  //   })
-  //   return errors
-  // }.property('requiredErrors.[]', 'typeErrors.[]'),
-
-  // valid: Ember.computed.empty('errorMessages')
-})
-
-function create(schema, proto){
+function create(schema){
   if (schema.type === "object"){
-    return JSObject.create({schema: schema, proto: proto})
+    return JSObject.create({_schema: schema})
+  } else if (schema.type === "array"){
+    return JSArrayProxy.create({_schema: schema, content: []})
   }
 }
+
+// var JSArray = Ember.Object.extend(Ember.MutableArray, {
+//   replace: function(){
+//     debugger
+//     console.log('called replace')
+//   },
+
+//   objectAt: function(){
+//     console.log('called objectAt')
+//   }
+// })
+
+var JSArrayProxy = Ember.ArrayProxy.extend({})
+
+JSArrayProxy.reopen({
+  pushObjects:function(objects){
+    var schema = this.get('_schema.items');
+    this._super(objects.map((obj)=>{
+      return create(schema)
+    }))
+  },
+
+  pushObject:function(object){
+    var schema = this.get('_schema.items');
+    return create(schema)
+  },
+
+  isValid: Ember.computed.empty('errors'),
+
+  errors: function(){
+    var errors = []
+    if (this.get('content.length') > this.get('_schema.maxItems')) {
+      errors.push({field: 'base', message: 'too many items in array'})
+    }
+    return errors
+  }.property('content.[]')
+})
+
+var JSObject = Ember.Object.extend({
+  setup: function(){
+    this._initProps()
+    this._setupRequiredErrors()
+  }.on('init'),
+
+  _schema: null,
+  _required: Ember.computed.alias('_schema.required'),
+  _props: Ember.computed('_schema.properties', function(){
+    return Ember.keys(this.get('_schema.properties'))
+  }),
+
+  _initProps: function(){
+    var self = this;
+    this.get('_props').map(function(name){
+      var subSchema = self.get('_schema.properties')[name]
+      var type = subSchema.type
+      switch (type) {
+        case "array":
+          self.set(name, create(subSchema))
+          break;
+        case "boolean":
+          break;
+        case "integer":
+          break;
+        case "number":
+          break;
+        case "null":
+          console.error("Property type of null is not implemented yet");
+          break;
+        case "object":
+          self.set(name, create(subSchema))
+          break;
+        case "string":
+          self.set(name)
+          break;
+        default:
+          console.error("You did not indicate a valid type in your json schema for property: ", name);
+      }
+    })
+  },
+
+  _setupRequiredErrors: function(){
+    var required = this.get('_required');
+    var self = this;
+    Ember.defineProperty(this, 'requiredErrors', Ember.computed.apply(this, required.concat(function(key, value){
+      return required.map(function(prop){
+        if (Ember.isEmpty(self.get(prop))){
+          return { field: prop, message: "is empty" }
+        }
+      }).filter(function(e){return e});
+    })));
+  },
+
+  errors: Ember.computed.alias('requiredErrors'),
+  isValid: Ember.computed.empty('errors'),
+
+  childErrors: function(){
+
+  }
+})
+
+
+// array
+// A JSON array.
+// boolean
+// A JSON boolean.
+// integer
+// A JSON number without a fraction or exponent part.
+// number
+// Any JSON number. Number includes integer.
+// null
+// The JSON null value.
+// object
+// A JSON object.
+// string
+// A JSON string.

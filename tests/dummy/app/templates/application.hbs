@@ -1,34 +1,52 @@
-<p>ID{{input value=id}}</p>
-<p>Submitter Name{{input value=submitter_name}}</p>
-<p>Submitter Email{{input value=submitter_email}}</p>
-<p>Submission Date{{input value=submission_date}}</p>
+<div class='box'>
+  <p>ID{{input value=id}}</p>
+  <p>Submitter Name{{input value=submitter_name}}</p>
+  <p>Submitter Email{{input value=submitter_email}}</p>
+  <p>Submission Date{{input value=submission_date}}</p>
 
-<p>
-  Artist
-  <p>Name{{input value=artist.name}}</p>
-  <p>Bio{{input value=artist.bio}}</p>
-  <p>Youtube URL{{input value=artist.youtube_url}}</p>
-</p>
+  <div class='box'>
+    Artist
+    <p>Name{{input value=artist.name}}</p>
+    <p>Bio{{input value=artist.bio}}</p>
+    <p>Youtube URL{{input value=artist.youtube_url}}</p>
+    {{#each error in artist.errors}}
+      <p class='error'>{{error.field}} - {{error.message}}</p>
+    {{/each}}
+  </div>
 
-<p>
-  Album
-  <p>title{{input value=album.title}}</p>
-  <p>release_date{{input value=album.release_date}}</p>
-  <p>record_label{{input value=album.record_label}}</p>
-  <p>upc{{input value=album.upc}}</p>
-</p>
+  <div class='box'>
+    Album
+    <p>title{{input value=album.title}}</p>
+    <p>release_date{{input value=album.release_date}}</p>
+    <p>record_label{{input value=album.record_label}}</p>
+    <p>upc{{input value=album.upc}}</p>
+    {{#each error in album.errors}}
+      <p class='error'>{{error.field}} - {{error.message}}</p>
+    {{/each}}
+  </div>
 
-<p>Tracks:</p>
-{{#each track in album.tracks}}
-  <p>Title{{input value=track.title}}</p>
-  <p>Filename{{input value=track.filename}}</p>
-  <p>URL{{input value=track.url}}</p>
-  <p>Access Token{{input value=track.access_token}}</p>
-{{/each}}
+  <div class='box'>
+    Tracks:
+    {{#each track in album.tracks}}
+      <div class="box">
+        <p>Title{{input value=track.title}}</p>
+        <p>Filename{{input value=track.filename}}</p>
+        <p>URL{{input value=track.url}}</p>
+        <p>Access Token{{input value=track.access_token}}</p>
+        {{#each error in track.errors}}
+          <p class='error'>{{error.field}} - {{error.message}}</p>
+        {{/each}}
+      </div>
+    {{/each}}
+    {{#each error in album.tracks.errors}}
+      <p class='error'>{{error.field}} - {{error.message}}</p>
+    {{/each}}
+  </div>
 
-<p>Valid? {{valid}}</p>
+  <p>Valid? {{valid}}</p>
 
-<p>Full list of errors:</p>
-{{#each error in errors}}
-  <p>{{error.path}} - {{error.message}}</p>
-{{/each}}
+  <p>Full list of errors:</p>
+  {{#each error in errors}}
+    <p class='error'>{{error.field}} - {{error.message}}</p>
+  {{/each}}
+</div>

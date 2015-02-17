@@ -1,6 +1,6 @@
 # Ember-cli-json-schema
 
-This README outlines the details of collaborating on this Ember addon.
+WARNING: This is still very much a work in progress. It does not yet fully implement the json-schema spec and is missing many critical features. I am currently working directly against master so expect breaking changes at any moment.
 
 ## Installation
 

@@ -4,25 +4,22 @@ export default Ember.Object.extend({
   _schemas: {},
   _validators: {},
 
-  load: function(url, name){
-    var self = this;
-    return Ember.$.getJSON(url, function(schema){
-      self.set('_schemas.' + name, schema);
-    });
+  load: function(name, schema){
+    this.set('_schemas.' + name, schema);
+    return this;
   },
 
-  createObject: function(name){
-    var obj = create(this.get('_schemas.' + name));
-    return obj;
+  createObject: function(name, data){
+    return create(this.get('_schemas.' + name), data);
   }
 
 });
 
-function create(schema){
-  if (schema.type === "object"){
-    return JSObject.create({_schema: schema});
-  } else if (schema.type === "array"){
+function create(schema, initData){
+  if (schema.type === "array"){
     return JSArrayProxy.create({_schema: schema, content: []});
+  } else {
+    return JSObject.create({_schema: schema, _initData: initData});
   }
 }
 
@@ -59,6 +56,7 @@ var JSObject = Ember.Object.extend({
   }.on('init'),
 
   _schema: null,
+  _initData: null,
   _required: Ember.computed.alias('_schema.required'),
   _props: Ember.computed('_schema.properties', function(){
     return Ember.keys(this.get('_schema.properties'));
@@ -86,16 +84,16 @@ var JSObject = Ember.Object.extend({
           self.set(name, create(subSchema));
           break;
         case "string":
-          self.set(name);
+          self.set(name, self.get('_initData.' + name));
           break;
         default:
-          console.error("You did not indicate a valid type in your json schema for property: ", name);
+          self.set(name, self.get('_initData.' + name));
       }
     });
   },
 
   _setupRequiredErrors: function(){
-    var required = this.get('_required');
+    var required = this.get('_required') || [];
     var self = this;
     Ember.defineProperty(this, 'requiredErrors', Ember.computed.apply(this, required.concat(function(){
       return required.map(function(prop){

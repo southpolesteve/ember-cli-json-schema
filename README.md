@@ -4,6 +4,43 @@
 
 WARNING: This is still very much a work in progress. It does not yet fully implement the json-schema spec and is missing many critical features. I am currently working directly against master so expect breaking changes at any moment.
 
+## Description
+
+`ember-cli-json-schema` is provides a service that can load json schemas, create objects from schemas, and validate those objects. This addon will inject a `schema` service into your routes that can be used to preform these operations.
+
+## Usage
+
+``` javascript
+
+var schema = {
+  "title": "Person",
+  "type": "object",
+  "properties": {
+    "firstName": {
+      "type": "string"
+    },
+    "lastName": {
+      "type": "string"
+    },
+    "age": {
+      "description": "Age in years",
+      "type": "integer"
+    }
+  },
+  "required": ["firstName", "lastName"]
+}
+
+export default Ember.Route.extend({
+  model: function(){
+    this.schema.load('Person', schema );
+    var model = this.schema.createObject('Person');
+    return model;
+  }
+})
+
+```
+
+
 ## Installation
 
 * `git clone` this repository

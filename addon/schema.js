@@ -18,7 +18,7 @@ export default Ember.Object.extend({
 function create(schema, initData){
   if (schema.type === "array"){
     return JSArrayProxy.create({_schema: schema, content: []});
-  } else {
+  } else if (schema.type === "object") {
     return JSObject.create({_schema: schema, _initData: initData});
   }
 }
@@ -58,7 +58,7 @@ var JSObject = Ember.Object.extend({
 
   setup: function(){
     this._initProps();
-    if (this.get('_required')){ this._setupRequiredErrors(); }
+    this._setupRequiredErrors()
     // this._setupTreeErrors();
   }.on('init'),
 
@@ -70,35 +70,55 @@ var JSObject = Ember.Object.extend({
       switch (type) {
         case "array":
           self.set(name, create(subSchema));
+          // SETUP ARRAY OBSERVERS ( minItems, maxItems )
           break;
         case "boolean":
+          console.error("Property type of boolean is not implemented yet");
           break;
         case "integer":
+          console.error("Property type of integer is not implemented yet");
           break;
         case "number":
+          console.error("Property type of number is not implemented yet");
           break;
         case "null":
           console.error("Property type of null is not implemented yet");
           break;
         case "object":
           self.set(name, create(subSchema));
+          // SETUP OBJECT OBSERVERS (required, minProps, maxProps, allOf, oneOf, etc)
           break;
         case "string":
           self.set(name, self.get('_initData.' + name));
           break;
         default:
+          console.error("Proprety " + name + " did not specify a type. May result in unexpected behavior");
           self.set(name, self.get('_initData.' + name));
       }
     });
   },
 
   _setupRequiredErrors: function(){
-    var required = this.get('_required');
     var self = this;
-    Ember.defineProperty(this, 'requiredErrors', Ember.computed.apply(this, required.concat(function(){
-      return required.map(function(prop){
-        if (Ember.isEmpty(self.get(prop))){
-          return { field: prop, message: "is empty" };
+    var requiredProps = this.get('_required') || [] ;
+    var propsWithType = this.get('_props').filter(function(propName)
+      { return self.get('_schema.properties.' + propName + '.type')
+    });
+
+    Ember.defineProperty(this, 'requiredErrors', Ember.computed.apply(this, requiredProps.concat(function(){
+      return requiredProps.map(function(propName){
+        if (Ember.isEmpty(self.get(propName))){
+          return { field: propName, message: "is empty" };
+        }
+      }).filter(function(e){return e;});
+    })));
+
+    Ember.defineProperty(this, 'typeErrors', Ember.computed.apply(this, propsWithType.concat(function(){
+      return propsWithType.map(function(propName){
+        console.log("calced", propName)
+        var type = self.get('_schema.properties.' + propName + '.type')
+        if (checkTypes[type](self.get(propName))){
+          return { field: propName, message: "is not of type " + type };
         }
       }).filter(function(e){return e;});
     })));
@@ -116,7 +136,9 @@ var JSObject = Ember.Object.extend({
     // })));
   },
 
-  errors: Ember.computed.alias('requiredErrors'),
+  errors: function(){
+    return this.get('requiredErrors').concat(this.get('typeErrors'));
+  }.property('requiredErrors.[]','typeErrors.[]'),
   isValid: Ember.computed.empty('errors'),
 
   childErrors: function(){
@@ -142,3 +164,37 @@ var JSObject = Ember.Object.extend({
     return this.get('errors').concat(this.get('childErrors'));
   }.property()
 });
+
+var checkTypes = {}
+
+checkTypes.any = function() {
+  return true
+}
+
+checkTypes.null = function(prop) {
+  return prop === null
+}
+
+checkTypes.boolean = function(prop) {
+  return typeof prop === "boolean"
+}
+
+checkTypes.array = function(prop) {
+  return Ember.isArray(prop)
+}
+
+checkTypes.object = function(prop) {
+  return Ember.typeOf(prop) === "object"
+}
+
+checkTypes.number = function(prop) {
+  return typeof prop === "number"
+}
+
+checkTypes.integer = function(prop) {
+  return typeof prop === "number" && ((prop | 0) === prop || prop > 9007199254740992 || prop < -9007199254740992)
+}
+
+checkTypes.string = function(prop) {
+  return Ember.typeOf(prop) === "string"
+}

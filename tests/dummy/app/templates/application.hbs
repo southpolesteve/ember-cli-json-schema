@@ -1,4 +1,17 @@
-<div {{bind-attr class=":box isValid:valid:invalid"}}>
+{{input value=firstName}}
+{{input value=lastName}}
+{{input value=parent.firstName}}
+{{input value=parent.lastName}}
+
+{{#each error in errors}}
+  <p class='error'>{{error.field}} - {{error.message}}</p>
+{{/each}}
+
+{{#each error in parent.errors}}
+  <p class='error'>{{error.field}} - {{error.message}}</p>
+{{/each}}
+
+{{!-- <div {{bind-attr class=":box isValid:valid:invalid"}}>
   <p>ID{{input value=id}}</p>
   <p>Submitter Name{{input value=submitter_name}}</p>
   <p>Submitter Email{{input value=submitter_email}}</p>
@@ -50,4 +63,4 @@
 <p>Full list of errors:</p>
 {{#each error in treeErrors}}
   <p class='error'>{{error.field}} - {{error.message}}</p>
-{{/each}}
+{{/each}} --}}

@@ -142,19 +142,3 @@ var JSObject = Ember.Object.extend({
     return this.get('errors').concat(this.get('childErrors'));
   }.property()
 });
-
-
-// array
-// A JSON array.
-// boolean
-// A JSON boolean.
-// integer
-// A JSON number without a fraction or exponent part.
-// number
-// Any JSON number. Number includes integer.
-// null
-// The JSON null value.
-// object
-// A JSON object.
-// string
-// A JSON string.

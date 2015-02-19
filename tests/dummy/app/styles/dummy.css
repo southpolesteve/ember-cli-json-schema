@@ -6,3 +6,11 @@
 .error {
   color: red;
 }
+
+.valid {
+  background-color: #75FF75;
+}
+
+.invalid {
+  background-color: #FF7373;
+}

@@ -1,10 +1,10 @@
-<div class='box'>
+<div {{bind-attr class=":box isValid:valid:invalid"}}>
   <p>ID{{input value=id}}</p>
   <p>Submitter Name{{input value=submitter_name}}</p>
   <p>Submitter Email{{input value=submitter_email}}</p>
   <p>Submission Date{{input value=submission_date}}</p>
 
-  <div class='box'>
+  <div {{bind-attr class=":box artist.isValid:valid:invalid"}}>
     Artist
     <p>Name{{input value=artist.name}}</p>
     <p>Bio{{input value=artist.bio}}</p>
@@ -14,7 +14,7 @@
     {{/each}}
   </div>
 
-  <div class='box'>
+  <div {{bind-attr class=":box album.isValid:valid:invalid"}}>
     Album
     <p>title{{input value=album.title}}</p>
     <p>release_date{{input value=album.release_date}}</p>
@@ -25,10 +25,10 @@
     {{/each}}
   </div>
 
-  <div class='box'>
+  <div {{bind-attr class=":box album.tracks.isValid:valid:invalid"}}>
     Tracks:
     {{#each track in album.tracks}}
-      <div class="box">
+      <div {{bind-attr class=":box track.isValid:valid:invalid"}}>
         <p>Title{{input value=track.title}}</p>
         <p>Filename{{input value=track.filename}}</p>
         <p>URL{{input value=track.url}}</p>
@@ -42,11 +42,12 @@
       <p class='error'>{{error.field}} - {{error.message}}</p>
     {{/each}}
   </div>
-
-  <p>Valid? {{valid}}</p>
-
-  <p>Full list of errors:</p>
   {{#each error in errors}}
     <p class='error'>{{error.field}} - {{error.message}}</p>
   {{/each}}
 </div>
+
+<p>Full list of errors:</p>
+{{#each error in treeErrors}}
+  <p class='error'>{{error.field}} - {{error.message}}</p>
+{{/each}}

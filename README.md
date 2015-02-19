@@ -13,21 +13,21 @@ WARNING: This is still very much a work in progress. It does not yet fully imple
 ``` javascript
 
 var schema = {
-  "title": "Person",
-  "type": "object",
-  "properties": {
+  title: "Person",
+  type: "object",
+  properties: {
     "firstName": {
-      "type": "string"
+      type: "string"
     },
     "lastName": {
-      "type": "string"
+      type: "string"
     },
     "age": {
-      "description": "Age in years",
-      "type": "integer"
+      description: "Age in years",
+      type: "integer"
     }
   },
-  "required": ["firstName", "lastName"]
+  required: ["firstName", "lastName"]
 }
 
 export default Ember.Route.extend({

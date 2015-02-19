@@ -41,6 +41,7 @@ export default Ember.Route.extend({
     return model;
   }
 })
+```
 
 Handlebars Template:
 ``` handlebars

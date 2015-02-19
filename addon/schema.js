@@ -51,8 +51,8 @@ JSArrayProxy.reopen({
 var JSObject = Ember.Object.extend({
   setup: function(){
     this._initProps();
-    this._setupRequiredErrors();
-    this._setupTreeErrors();
+    if (this.get('_required')){ this._setupRequiredErrors(); }
+    // this._setupTreeErrors();
   }.on('init'),
 
   _schema: null,
@@ -93,7 +93,7 @@ var JSObject = Ember.Object.extend({
   },
 
   _setupRequiredErrors: function(){
-    var required = this.get('_required') || [];
+    var required = this.get('_required')
     var self = this;
     Ember.defineProperty(this, 'requiredErrors', Ember.computed.apply(this, required.concat(function(){
       return required.map(function(prop){

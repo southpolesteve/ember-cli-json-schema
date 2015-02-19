@@ -43,11 +43,12 @@ var scenerios = [
 import { test } from 'ember-qunit';
 import Schema from 'ember-cli-json-schema/schema';
 
+var schema = Schema.create();
+
 scenerios.map(function(scenerio){
   module(scenerio.description);
   scenerio.tests.map(function(_test){
     test(_test.description, function() {
-      var schema = Schema.create();
       schema.load("test", scenerio.schema);
       var obj = schema.createObject("test", _test.data);
       equal(obj.get('isValid'), _test.valid);

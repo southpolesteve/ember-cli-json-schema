@@ -14,8 +14,8 @@ WARNING: This is still very much a work in progress. It does not yet fully imple
 
 ## Usage
 
+Route:
 ``` javascript
-
 var schema = {
   title: "Person",
   type: "object",
@@ -42,6 +42,16 @@ export default Ember.Route.extend({
   }
 })
 
+Handlebars Template:
+``` handlebars
+{{input value=firstName}}
+{{input value=lastName}}
+
+<p>Valid? {{isValid}}</p>
+
+{{#each error in errors}}
+  <p class='error'>{{error.field}} - {{error.message}}</p>
+{{/each}}
 ```
 
 

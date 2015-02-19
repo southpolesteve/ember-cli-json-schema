@@ -29,7 +29,7 @@ JSArrayProxy.reopen({
   replaceContent: function(idx, amt, objects) {
     if (objects) {
       var schema = this.get('_schema.items');
-      objects = objects.map(function(){ return create(schema); });
+      objects = objects.map(function(obj){ return create(schema, obj); });
     }
     this._super(idx, amt, objects);
   },

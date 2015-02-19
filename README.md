@@ -8,6 +8,10 @@ WARNING: This is still very much a work in progress. It does not yet fully imple
 
 `ember-cli-json-schema` is provides a service that can load json schemas, create objects from schemas, and validate those objects. This addon will inject a `schema` service into your routes that can be used to preform these operations.
 
+## Installation
+
+`ember install:addon ember-cli-json-schema`
+
 ## Usage
 
 ``` javascript

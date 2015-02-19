@@ -45,23 +45,23 @@ export default Ember.Route.extend({
 ```
 
 
-## Installation
+## Contributing
 
 * `git clone` this repository
 * `npm install`
 * `bower install`
 
-## Running
+### Running
 
 * `ember server`
 * Visit your app at http://localhost:4200.
 
-## Running Tests
+### Running Tests
 
 * `ember test`
 * `ember test --server`
 
-## Building
+### Building
 
 * `ember build`
 

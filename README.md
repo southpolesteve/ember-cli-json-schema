@@ -2,11 +2,16 @@
 
 [![Build Status](https://travis-ci.org/southpolesteve/ember-cli-json-schema.svg?branch=master)](https://travis-ci.org/southpolesteve/ember-cli-json-schema)
 
-WARNING: This is still very much a work in progress. It does not yet fully implement the json-schema spec and is missing many critical features. I am currently working directly against master so expect breaking changes at any moment.
+WARNING: This is still very much a work in progress. It does not yet fully implement the [JSON Schema](http://json-schema.org/) spec and is missing many critical features. I am currently working directly against master so expect breaking changes at any moment.
 
 ## Description
 
-`ember-cli-json-schema` is provides a service that can load json schemas, create objects from schemas, and validate those objects. This addon will inject a `schema` service into your routes that can be used to preform these operations.
+`ember-cli-json-schema` is provides a service that can load json schemas, create objects from schemas, and validate those objects. This addon will inject a `schema` service into your routes that can be used to preform schema related operations. The purpose is to help form authors easily validate and display errors for data conforming to the json schema spec.
+
+## Support / Disclaimer
+
+This add-on attempts to comply with the [JSON Schema](http://json-schema.org/). As currently written, it does not support the full specification. It also lacks support for some "simple" schemas. Currently this means that your schema's root object must specify a type of `array` or `object`.
+
 
 ## Installation
 

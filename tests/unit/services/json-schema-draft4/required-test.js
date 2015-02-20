@@ -3,6 +3,7 @@ var scenerios = [
     {
         "description": "required validation",
         "schema": {
+            "type": "object",
             "properties": {
                 "foo": {},
                 "bar": {}
@@ -25,6 +26,7 @@ var scenerios = [
     {
         "description": "required default validation",
         "schema": {
+            "type": "object",
             "properties": {
                 "foo": {}
             }

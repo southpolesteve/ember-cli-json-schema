@@ -2,12 +2,41 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
   model: function(){
-    this.schema.load('submission', schema );
-    var model = this.schema.createObject('submission');
-    model.get('album.tracks').pushObjects([{},{}]);
+    this.schema.load('person', schema );
+    var model = this.schema.createObject('person');
     return model;
   }
 });
+
+// var schema = {
+//   title: "Person",
+//   type: "object",
+//   properties: {
+//     "firstName": {
+//       type: "string"
+//     },
+//     "lastName": {
+//       type: "string"
+//     },
+//     "age": {
+//       description: "Age in years",
+//       type: "integer"
+//     },
+//     "parent": {
+//       type: 'object',
+//       properties: {
+//         "sex": {
+//           type: "string"
+//         },
+//         "age": {
+//           type: "string"
+//         }
+//       },
+//       required: ["sex", "age"]
+//     }
+//   },
+//   required: ["firstName", "lastName"]
+// };
 
 var schema = {
 $schema: "http://json-schema.org/draft-04/schema#",

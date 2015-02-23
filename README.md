@@ -60,6 +60,56 @@ Handlebars Template:
 {{/each}}
 ```
 
+### API
+
+`schema.load(name, schema)`
+
+#### Parameters
+
+name - string - Name of the schmea to be loaded. You will reference this later to create an object
+schema - object - This is the schema itself
+
+returns: null
+
+`schema.createObject(name)`
+
+#### Parameters
+
+name - string - Name of the schmea to be used to create the object
+
+returns: schema object instance
+
+`schemaObject.errors`
+
+#### Parameters
+
+returns: array of errors on the current level of the schema object
+
+`schemaObject.childErrors`
+
+#### Parameters
+
+returns: array of errors on below the current level of the schema object
+
+`schemaObject.treeErrors`
+
+#### Parameters
+
+returns: array of errors on the current level or below of the schema object
+
+`schemaObject.isValid`
+
+#### Parameters
+
+returns: boolean. If no errors exist on the current level of the object
+
+`schemaObject.isTreeValid`
+
+#### Parameters
+
+returns: boolean. If no errors exist on or below the current level of the object
+
+
 
 ## Contributing
 

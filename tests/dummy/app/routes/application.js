@@ -4,6 +4,7 @@ export default Ember.Route.extend({
   model: function(){
     this.schema.load('person', schema );
     var model = this.schema.createObject('person');
+    model.get('album.tracks').pushObjects([{},{}]);
     return model;
   }
 });

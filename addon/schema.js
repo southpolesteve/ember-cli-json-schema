@@ -100,51 +100,57 @@ var JSObject = Ember.Object.extend({
     });
   },
 
-  _setupErrorProps: function(){
+  _setupProp: function(propName, type, callback){
+    var privatePropName = ["_errors", propName, type].join("-");
+    this.get('_errorProps').push(privatePropName);
+    Ember.defineProperty(this, privatePropName , Ember.computed(propName, callback));
+  },
+
+  _setupRequiredProp: function(propName){
+    this._setupProp(propName, "required",  function(){
+      if (Ember.isEmpty(this.get(propName))){
+        return { field: propName, message: "is empty" };
+      }
+    });
+  },
+
+  _setupPatternProp: function(propName){
+    this._setupProp(propName, "pattern",  function(){
+      var pattern = this.get('_schema.properties.' + propName + '.pattern');
+      var regex = new RegExp(pattern);
+      var prop = this.get(propName);
+      if (!prop || !prop.match(regex)){
+        return { field: propName, message: "does not match pattern '" + pattern +"'"};
+      }
+    });
+  },
+
+  _setupFormatProp: function(propName){
+    this._setupProp(propName, "format",  function(){
+      var format = this.get('_schema.properties.' + propName + '.format');
+      var regex = formats[format];
+      var prop = this.get(propName);
+      if (!prop || !prop.match(regex)){
+        return { field: propName, message: "does not match format '" + format +"'"};
+      }
+    });
+  },
+
+  _propsWith: function(attr){
     var self = this;
+    return this.get('_props').filter(function(propName){
+      return self.get(['_schema.properties', propName, attr ].join("."));
+    });
+  },
+
+  _setupErrorProps: function(){
     var requiredProps = this.get('_required') || [] ;
-    var propsWithPattern = this.get('_props').filter(function(propName){
-      return self.get('_schema.properties.' + propName + '.pattern');
-    });
-    var propsWithFormat = this.get('_props').filter(function(propName){
-      return self.get('_schema.properties.' + propName + '.format');
-    });
+    var propsWithPattern = this._propsWith('pattern');
+    var propsWithFormat = this._propsWith('format');
 
-    requiredProps.map(function(propName){
-      var privatePropName = "_errors-" + propName + "-required";
-      self.get('_errorProps').push(privatePropName);
-      Ember.defineProperty(self, privatePropName , Ember.computed(propName, function(){
-        if (Ember.isEmpty(self.get(propName))){
-          return { field: propName, message: "is empty" };
-        }
-      }));
-    });
-
-    propsWithPattern.map(function(propName){
-      var privatePropName = "_errors-" + propName + "-pattern";
-      self.get('_errorProps').push(privatePropName);
-      Ember.defineProperty(self, privatePropName , Ember.computed(propName, function(){
-        var pattern = self.get('_schema.properties.' + propName + '.pattern');
-        var regex = new RegExp(pattern);
-        var prop = self.get(propName);
-        if (!prop || !prop.match(regex)){
-          return { field: propName, message: "does not match pattern '" + pattern +"'"};
-        }
-      }));
-    });
-
-    propsWithFormat.map(function(propName){
-      var privatePropName = "_errors-" + propName + "-format";
-      self.get('_errorProps').push(privatePropName);
-      Ember.defineProperty(self, privatePropName , Ember.computed(propName, function(){
-        var format = self.get('_schema.properties.' + propName + '.format');
-        var regex = formats[format];
-        var prop = self.get(propName);
-        if (!prop || !prop.match(regex)){
-          return { field: propName, message: "does not match format '" + format +"'"};
-        }
-      }));
-    });
+    requiredProps.map(this._setupRequiredProp.bind(this));
+    propsWithPattern.map(this._setupPatternProp.bind(this));
+    propsWithFormat.map(this._setupFormatProp.bind(this));
 
     var errorProps = this.get('_errorProps');
 
@@ -160,6 +166,7 @@ var JSObject = Ember.Object.extend({
 
   isValid: Ember.computed.empty('errors'),
   isTreeValid: Ember.computed.empty('treeErrors'),
+
   _children: function(){
     var childrenArray = [];
     var childrenObject = this.getProperties(this.get('_childrenProps'));
